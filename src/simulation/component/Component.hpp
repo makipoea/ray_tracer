@@ -19,12 +19,12 @@ class Optical_index{
         std::function<float(const Eigen::Vector3d&)> n; // the actual index function 
     public:
         // no idea if i am supposed to make an acess function ??
-        static translate_function(Eigen::Vector3d);
-}
+        static void translate_function(Eigen::Vector3d);
+};
 
 using point = Eigen::Vector3d;
 
-using bbox = point jsp[4];
+using bbox = point[4];
 
 struct Placement{
     point p;
