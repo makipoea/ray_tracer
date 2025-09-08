@@ -1,7 +1,8 @@
 #include<iostream>
 #include <igl/read_triangle_mesh.h>
+// #include <igl/opengl/glfw/Viewer.h>
 #include <Eigen/Core>
-
+#include"../src/simulation/component/Component.hpp"
 
 //using namespace std;
 
@@ -28,6 +29,10 @@ int main() {
                   << V(0,1) << ", " 
                   << V(0,2) << std::endl;
     }
+
+    //igl::opengl::glfw::Viewer viewer;
+    //viewer.data().set_mesh(V, F);
+    //viewer.launch();
 
     return 0;
 }

@@ -1,17 +1,17 @@
+
 cmake_minimum_required(VERSION 3.1)
 project(ray_tracer)
 
 set(CMAKE_CXX_STANDARD 17)
 
-# Chemin vers libigl
+# chemin vers libigl
 set(LIBIGL_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/external/libigl/include)
 
-# Eigen est requis
+# eigen
 find_package(Eigen3 REQUIRED)
 
-# Ajout des include paths
+# ajout des include paths
 include_directories(${LIBIGL_INCLUDE_DIR})
 include_directories(${EIGEN3_INCLUDE_DIR})
 
-# Ton exécutable
 add_executable(ray_tracer src/main.cpp)

@@ -634,8 +634,13 @@ CMakeFiles/ray_tracer.dir/src/main.cpp.o: ../src/main.cpp \
   ../external/libigl/include/igl/get_seconds.h \
   ../external/libigl/include/igl/get_seconds.cpp \
   ../external/libigl/include/igl/accumarray.h \
-  ../external/libigl/include/igl/accumarray.cpp
+  ../external/libigl/include/igl/accumarray.cpp \
+  ../src/simulation/component/Component.hpp \
+  /usr/include/eigen3/Eigen/src/Core/Matrix.h \
+  /usr/include/c++/11/variant
 
+
+/usr/include/c++/11/variant:
 
 ../external/libigl/include/igl/accumarray.h:
 
@@ -946,6 +951,8 @@ CMakeFiles/ray_tracer.dir/src/main.cpp.o: ../src/main.cpp \
 /usr/include/c++/11/bits/locale_classes.tcc:
 
 /usr/include/c++/11/ext/aligned_buffer.h:
+
+../src/simulation/component/Component.hpp:
 
 /usr/include/x86_64-linux-gnu/sys/types.h:
 
