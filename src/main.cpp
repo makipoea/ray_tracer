@@ -1,6 +1,7 @@
 #include<iostream>
 #include <igl/read_triangle_mesh.h>
-// #include <igl/opengl/glfw/Viewer.h>
+//#include <igl/opengl/glfw/Viewer.h>
+//#include <igl/opengl/glfw/Viewer.h>
 #include <Eigen/Core>
 #include"../src/simulation/component/Component.hpp"
 
@@ -12,12 +13,11 @@ int main() {
     Eigen::MatrixXi F; // faces
 
 
-    std::string filename = "../resources/lens.stl";
+    std::string filename = "../resources/lens_fine.stl";
     if (!igl::read_triangle_mesh(filename, V, F)) {
         std::cerr << "Erreur : impossible de charger " << filename << std::endl;
         return -1;
     }
-
 
     std::cout << "Maillage chargé : " << filename << std::endl;
     std::cout << "Nombre de sommets : " << V.rows() << std::endl;

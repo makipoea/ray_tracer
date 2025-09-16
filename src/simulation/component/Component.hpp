@@ -24,7 +24,19 @@ class Optical_index{
 
 using point = Eigen::Vector3d;
 
-using bbox = point[4];
+//using bbox = point[4];
+
+class bbox{
+    public:
+        Eigen::Vector3d min; // [min_x, min_y, min_z]
+        Eigen::Vector3d max; // [max_x, max_y, max_z]
+        //point[4] point_array; // in order : (min_x, min_y, min_z), (max_x, min_y, min_z), (max_x, max_y, min_z), (min_x, max_y, min_z)... la meme avec max_z
+        void merge(bbox);
+        bool collide(bbox);
+
+        bbox(const Eigen::Vector3d& minVec, const Eigen::Vector3d& maxVec)
+        : min(minVec), max(maxVec) {}
+};
 
 struct Placement{
     point p;
@@ -39,21 +51,24 @@ struct Mesh {
 
 class Solid{
     public:
-        Optical_index n; // optical index n'a une definission valide que dans la boundaries 
-
-        Solid(std::string stl_filename, Optical_index n); // constructeur voir le fichier main.cpp    
-    
+        Optical_index n; // optical index n'a une definission valide que dans le maillage 
+        Mesh maillage;
+        bbox bounding_box = {{0, 0, 0}, {0, 0, 0}};
+        void translate(Eigen::Vector3d);
+        Solid(std::string stl_filename, Optical_index n); 
+        //bool collide_with(Solid); 
     };
 
 class Component{
     public  : 
         std::variant<Solid, std::vector<Component> > data; // move to private     
         bool is_a_solid(void);
-        void add_component(Component);  
+        bool add_component(Component, bool cheke_collision=true);  
         bbox bounding_box; // la bounding box sera utilisé pour l'optimisation des collisions / et la recherche des stl prenant le point s
         void compute_bounding_box(Component);
-        void translate_componenet(Eigen::Vector3d, bool);
-        // /!\ pensser à ajouter les bounding box des composants pour l'optimisation d'appartenance 
+        void translate_component(Eigen::Vector3d, bool);
+        Component(std::variant<Solid, std::vector<Component>>);
+        bool is_in_component(Eigen::Vector3d);
     private :
         bool collide_with(Component); // return True si l'intersection entre les composant est non vide 
 
