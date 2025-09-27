@@ -9,30 +9,23 @@
 
 int main() {
 
-    Eigen::MatrixXd V; // sommets
-    Eigen::MatrixXi F; // faces
+    Solid lentille1 = Solid("../resources/lens.stl");
+    Solid lentille2 = Solid("../resources/lens.stl");
+    igl::opengl::glfw::Viewer viewer;
 
+    lentille2.translate({0.01, 0, 0});
 
-    std::string filename = "../resources/lens_fine.stl";
-    if (!igl::read_triangle_mesh(filename, V, F)) {
-        std::cerr << "Erreur : impossible de charger " << filename << std::endl;
-        return -1;
-    }
+    // Premier mesh sur le data() par défaut
+    
+    lentille1.load_viewer(&viewer);
+    lentille2.load_viewer(&viewer);
 
-    std::cout << "Maillage chargé : " << filename << std::endl;
-    std::cout << "Nombre de sommets : " << V.rows() << std::endl;
-    std::cout << "Nombre de faces   : " << F.rows() << std::endl;
-
-    if (V.rows() > 0) {
-        std::cout << "Premier sommet : " 
-                  << V(0,0) << ", " 
-                  << V(0,1) << ", " 
-                  << V(0,2) << std::endl;
-    }
-
+    viewer.launch();
+    
+    /*
     igl::opengl::glfw::Viewer viewer;
     viewer.data().set_mesh(V, F);
     viewer.launch();
-
+    */
     return 0;
 }

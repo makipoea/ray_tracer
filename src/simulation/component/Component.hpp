@@ -1,7 +1,8 @@
+#include <Eigen/Core>
 #include <eigen3/Eigen/src/Core/Matrix.h>
+#include<igl/opengl/glfw/Viewer.h>
 #include<vector>
 #include <igl/read_triangle_mesh.h>
-#include <Eigen/Core>
 #include<functional>
 #include<variant>
 
@@ -14,13 +15,21 @@ struct rayon{
 using source = std::function<rayon(void)>;
 //using Optical_index = std::function<float(const Eigen::Vector3d&)>;
 
+using Optical_function = std::function<float(const Eigen::Vector3d&)>; 
+
 class Optical_index{
     private:
-        std::function<float(const Eigen::Vector3d&)> n; // the actual index function 
+        Optical_function n; // the actual index function 
     public:
         // no idea if i am supposed to make an acess function ??
-        static void translate_function(Eigen::Vector3d);
+        void translate_function(Eigen::Vector3d);
+
+        Optical_index() : n([](Eigen::Vector3d){ return 1; }) {};
+        Optical_index(Optical_function n_){
+            this->n = n_;
+        }
 };
+
 
 using point = Eigen::Vector3d;
 
@@ -32,8 +41,9 @@ class bbox{
         Eigen::Vector3d max; // [max_x, max_y, max_z]
         //point[4] point_array; // in order : (min_x, min_y, min_z), (max_x, min_y, min_z), (max_x, max_y, min_z), (min_x, max_y, min_z)... la meme avec max_z
         void merge(bbox);
-        bool collide(bbox);
+        bool collide(const bbox&) const;
 
+        bbox() : min(Eigen::Vector3d::Zero()), max(Eigen::Vector3d::Zero()) {};
         bbox(const Eigen::Vector3d& minVec, const Eigen::Vector3d& maxVec)
         : min(minVec), max(maxVec) {}
 };
@@ -53,23 +63,25 @@ class Solid{
     public:
         Optical_index n; // optical index n'a une definission valide que dans le maillage 
         Mesh maillage;
-        bbox bounding_box = {{0, 0, 0}, {0, 0, 0}};
+        bbox bounding_box;
         void translate(Eigen::Vector3d);
-        Solid(std::string stl_filename, Optical_index n); 
+        Solid(std::string, Optical_index = Optical_index()); 
+        void load_viewer(igl::opengl::glfw::Viewer* viewer);
         //bool collide_with(Solid); 
     };
 
-class Component{
-    public  : 
-        std::variant<Solid, std::vector<Component> > data; // move to private     
-        bool is_a_solid(void);
-        bool add_component(Component, bool cheke_collision=true);  
-        bbox bounding_box; // la bounding box sera utilisé pour l'optimisation des collisions / et la recherche des stl prenant le point s
-        void compute_bounding_box(Component);
-        void translate_component(Eigen::Vector3d, bool);
-        Component(std::variant<Solid, std::vector<Component>>);
-        bool is_in_component(Eigen::Vector3d);
-    private :
-        bool collide_with(Component); // return True si l'intersection entre les composant est non vide 
 
+class Component {
+    public:
+        Component(std::variant<Solid*, std::vector<Component*>> data);
+        bool is_a_solid(void);
+        bool add_component(Component, bool check_collision = true);  
+        void compute_bounding_box(); // Peut-être à revoir son utilité
+        void translate_component(Eigen::Vector3d, bool);
+        bool is_in_component(Eigen::Vector3d);
+        bbox bounding_box;
+
+    private:
+        std::variant<Solid*, std::vector<Component*>> data;
+        bool collide_with(Component*);
 };
