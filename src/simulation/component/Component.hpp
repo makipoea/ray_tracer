@@ -67,6 +67,7 @@ class Solid{
         void translate(Eigen::Vector3d);
         Solid(std::string, Optical_index = Optical_index()); 
         void load_viewer(igl::opengl::glfw::Viewer* viewer);
+        bool is_in_Solid(Eigen::Vector3d point);
         //bool collide_with(Solid); 
     };
 
@@ -75,10 +76,14 @@ class Component {
     public:
         Component(std::variant<Solid*, std::vector<Component*>> data);
         bool is_a_solid(void);
-        bool add_component(Component, bool check_collision = true);  
+        bool add_component(Component* c_add, bool check_collision=true);  
         void compute_bounding_box(); // Peut-être à revoir son utilité
-        void translate_component(Eigen::Vector3d, bool);
+        bool translate_component(Eigen::Vector3d, bool);
         bool is_in_component(Eigen::Vector3d);
+        void load_viewer(igl::opengl::glfw::Viewer* viewer);
+        Solid* get_Solid();
+        std::vector<Component*>& get_l_Component();
+        
         bbox bounding_box;
 
     private:

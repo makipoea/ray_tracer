@@ -4,6 +4,7 @@ project(ray_tracer)
 message("Message de teste")
 
 set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_FLAGS "-g") # censsé ajouter le flag de debug (pour pouvoir utiliser gdn)
 
 # chemin vers libigl
 

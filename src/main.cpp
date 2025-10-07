@@ -10,16 +10,21 @@
 int main() {
 
     Solid lentille1 = Solid("../resources/lens.stl");
-    Solid lentille2 = Solid("../resources/lens.stl");
+    Solid lentille_fine = Solid("../resources/lens_fine.stl");
+    Solid clip = Solid("../resources/clip.stl");
+    Solid roue = Solid("../resources/roue.stl");
     igl::opengl::glfw::Viewer viewer;
 
-    lentille2.translate({0.01, 0, 0});
+    lentille_fine.translate({0.01, 0, 0});
 
-    // Premier mesh sur le data() par défaut
+    Component lentille2_comp = Component(&roue);
+    Component lunette(&roue);
+    lunette.add_component(&lentille2_comp);
     
-    lentille1.load_viewer(&viewer);
-    lentille2.load_viewer(&viewer);
-
+    //Component World(&clip);
+    //World.add_component(&lentille2_comp);
+    //World.load_viewer(&viewer);
+    lunette.load_viewer(&viewer);
     viewer.launch();
     
     /*

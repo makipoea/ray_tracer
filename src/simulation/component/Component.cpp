@@ -79,86 +79,126 @@ bool Component::is_a_solid(void){
 
 
 bool Component::collide_with(Component* other_c) {
-    if (!this->bounding_box.collide(other_c->bounding_box)) { // la seul et unique raison d'etre des boundings box
+    std::cout << "enter collide function" << std::endl;
+    if (this->bounding_box.collide(other_c->bounding_box)) { // la seul et unique raison d'etre des boundings box
         return false;
     }
 
     if (this->is_a_solid() && other_c->is_a_solid()) {
+        std::cout << "enter 1" << std::endl;
         Solid* this_solid = std::get<Solid*>(this->data);
         Solid* other_solid = std::get<Solid*>(other_c->data);
         
         Eigen::MatrixXd V_intersect;
         Eigen::MatrixXi F_intersect;
         // on ne questionnera en aucun cas la complexité d'une telle solution 
+        std::cout<< "intersection" << std::endl;
         //igl::copyleft::cgal::mesh_boolean(
         //    this_solid->maillage.sommets, this_solid->maillage.faces,
-        //   other_solid->maillage.sommets, other_solid->maillage.faces,
+        //    other_solid->maillage.sommets, other_solid->maillage.faces,
         //    igl::MESH_BOOLEAN_TYPE_INTERSECT, V_intersect, F_intersect);
-        
-        //return V_intersect.rows() > 0; // on verifie si l'intersection est non vide
+        std::cout << "fin intersection" << std::endl;
+        return V_intersect.rows() > 0; // on verifie si l'intersection est non vide
     }
-/*
+
     if (this->is_a_solid()) {
-        for (auto& c : std::get<std::vector<Component>>(other_c->data)) {
-            if (this->collide_with(&c)) return true;
+        for (auto c : other_c->get_l_Component()) {
+            if (this->collide_with(c)) return true;
         }
         return false;
     }
 
     if (other_c->is_a_solid()) {
-        for (auto& c : std::get<std::vector<Component>>(this->data)) {
-            if (c.collide_with(other_c)) return true;
+        for (auto c : this->get_l_Component()) {
+            if (c->collide_with(other_c)) return true;
         }
         return false;
     }
 
     // la recursivité est un choix et j'ai resisiter
-    for (auto& c1 : std::get<std::vector<Component>>(this->data)) {
-        for (auto& c2 : std::get<std::vector<Component>>(other_c->data)) {
-            if (c1.collide_with(&c2)) return true;
+    for (auto c1 : std::get<std::vector<Component*>>(this->data)) {
+        for (auto c2 : std::get<std::vector<Component*>>(other_c->data)) {
+            if (c1->collide_with(c2)) return true;
         }
     }
-*/  
+  
     return false;
 }
 
-/*
+Solid* Component::get_Solid(){
+    return std::get<Solid*>(this->data);
+}
 
-Component::add_component(Component c_add, bool cheke_collision){
-    if (cheke_collision && this->collide_with(c_add)) {
-        std::cout << "Une detection entre les deux objets a été détécter : l'objet n'as pas été ajouter " << std::endl;
-        return false 
+std::vector<Component*>& Component::get_l_Component()  {
+    return std::get<std::vector<Component*>>(this->data);
+}
+
+
+void Component::load_viewer(igl::opengl::glfw::Viewer* viewer){
+    if (this->is_a_solid()){
+        this->get_Solid()->load_viewer(viewer); // oui c'est horrible et ca merite une methode a part entiere
     }
     else {
-        std::cout << "Warning : la verification de collision n'as pas été activer" << std::endl; // the Warning output doivent etre convertit apres l'implementation d'une gestion des logs satisfaisante
+        for (auto c : this->get_l_Component()){
+            c->load_viewer(viewer);
+        }
     }
 
-    if (this->is_a_solid()){
-        this->data = Component({this->data});
+}
+
+bool Component::add_component(Component* c_add, bool check_collision){
+    // the output represent the sucess of the adding operation
+    if (check_collision && this->collide_with(c_add)) {
+        std::cout << "Une detection entre les deux objets a été détécter : l'objet n'as pas été ajouter " << std::endl;
+        return false;
     }
-    if (c_add.is_a_solid()){
-        c_add.data = Component({this->data})
+    if (!check_collision){
+        std::cout << "la dtection de collision n'as pas ete activer " << std::endl;
+    }
+
+    if (this->is_a_solid()) {
+        Solid* temporary_solid = this->get_Solid();
+
+        this->data = std::vector<Component*>{new Component(temporary_solid)};
+        //delete temporary_solid; // ?
+    }
+    if (c_add->is_a_solid()) {
+        Solid* temporary_solid = c_add->get_Solid();
+        c_add->data = std::vector<Component*>{new Component(temporary_solid)};
+        //delete temporary_solid;
     }
   
-    this->data.insert(this->data.end(), c_add.data.begin(), c_add.data.end());
-        
+    auto& comps_this = this->get_l_Component();
+    auto& comps_c_add = c_add->get_l_Component();
+    comps_this.insert(comps_this.end(), comps_c_add.begin(), comps_c_add.end());
+
     return true;
 }
 
-Component::translate_component(Eigen::Vector3d dep, bool cheke_collision){
-    
+bool Component::translate_component(Eigen::Vector3d dep, bool cheke_collision){
+    // the output represente the sucess of the operation
     //Step :
     //- Translate each sub_component
     //- Durant le parcours de l'arbre on translate la fonction d'indice
     //
     if (this->is_a_solid()) {
-        this->data.translate(dep);
+        this->get_Solid()->translate(dep);
     }
-    else if () {
-
+    else {
+        for (auto comp : this->get_l_Component()){
+            comp->translate_component(dep, cheke_collision);
+        }
     }
 }
 
+bool is_in_Solid(){
+    /*
+    il faudra voir si on cheke la bbox  : normalement elle est deja verifier dans le component
+    sdfkjsdlfj sd;fhsdf
+    */
+}
+
+/*
 Component::is_in_component(Eigen::Vector3d point){
     // Cette fonction pourra etre ameliorer avec un quadtree calculer prealablement 
 }
