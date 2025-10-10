@@ -15,17 +15,24 @@ int main() {
     Solid roue = Solid("../resources/roue.stl");
     igl::opengl::glfw::Viewer viewer;
 
-    lentille_fine.translate({0.01, 0, 0});
+    //std::cout << "roue min = " << roue.bounding_box.min << "\n  -- \n max = " << roue.bounding_box.max << "\n ----------------------------- \n \n " <<std::endl;
 
-    Component lentille2_comp = Component(&roue);
-    Component lunette(&roue);
-    lunette.add_component(&lentille2_comp);
+    //std::cout << "lentille1 min = " << lentille1.bounding_box.min << "\n -- \n  max = " << lentille1.bounding_box.max << std::endl;
+
+    lentille1.translate({0.05, 0, 0});
+
+    Component lunette(&lentille1);
+    Component C_lentille_fine(&lentille_fine);
+    lunette.add_component(&C_lentille_fine);
+
+    Component World(&roue);
+    World.add_component(&lunette);
+    //World.pprint();
     
-    //Component World(&clip);
-    //World.add_component(&lentille2_comp);
     //World.load_viewer(&viewer);
-    lunette.load_viewer(&viewer);
-    viewer.launch();
+
+    //lunette.load_viewer(&viewer);
+    //viewer.launch();
     
     /*
     igl::opengl::glfw::Viewer viewer;

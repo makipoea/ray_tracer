@@ -56,7 +56,6 @@ struct Placement{
 struct Mesh {
     Eigen::MatrixXd sommets;  // Sommet: tableau x * 3 comprtant les coordonné de chaque sommet ex : [[3.12, 23.34, 78], [-0.2, 1, 0], [0, 0, 0]]
     Eigen::MatrixXi faces;  // tableau x * 3 comportant les numéros de sommet formant les faces ex : [[0, 1, 2]] 
-    
 };
 
 class Solid{
@@ -69,6 +68,7 @@ class Solid{
         void load_viewer(igl::opengl::glfw::Viewer* viewer);
         bool is_in_Solid(Eigen::Vector3d point);
         //bool collide_with(Solid); 
+        std::string solid_name;
     };
 
 
@@ -83,7 +83,7 @@ class Component {
         void load_viewer(igl::opengl::glfw::Viewer* viewer);
         Solid* get_Solid();
         std::vector<Component*>& get_l_Component();
-        
+        void pprint(int niveau=0);
         bbox bounding_box;
 
     private:

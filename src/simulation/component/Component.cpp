@@ -16,7 +16,7 @@ Solid::Solid(std::string stl_filename, Optical_index opt_index)
     if (!igl::read_triangle_mesh(stl_filename, maillage.sommets, maillage.faces)) {
         std::cerr << "Erreur : impossible de charger le fichier " << stl_filename << std::endl;
     }
-
+    // ajouter le parsing du noom de fichier
     bounding_box.min = maillage.sommets.row(0);
     bounding_box.max = maillage.sommets.row(0);
 
@@ -79,25 +79,21 @@ bool Component::is_a_solid(void){
 
 
 bool Component::collide_with(Component* other_c) {
-    std::cout << "enter collide function" << std::endl;
     if (this->bounding_box.collide(other_c->bounding_box)) { // la seul et unique raison d'etre des boundings box
         return false;
     }
 
     if (this->is_a_solid() && other_c->is_a_solid()) {
-        std::cout << "enter 1" << std::endl;
         Solid* this_solid = std::get<Solid*>(this->data);
         Solid* other_solid = std::get<Solid*>(other_c->data);
         
         Eigen::MatrixXd V_intersect;
         Eigen::MatrixXi F_intersect;
         // on ne questionnera en aucun cas la complexité d'une telle solution 
-        std::cout<< "intersection" << std::endl;
-        //igl::copyleft::cgal::mesh_boolean(
-        //    this_solid->maillage.sommets, this_solid->maillage.faces,
-        //    other_solid->maillage.sommets, other_solid->maillage.faces,
-        //    igl::MESH_BOOLEAN_TYPE_INTERSECT, V_intersect, F_intersect);
-        std::cout << "fin intersection" << std::endl;
+        igl::copyleft::cgal::mesh_boolean(
+            this_solid->maillage.sommets, this_solid->maillage.faces,
+            other_solid->maillage.sommets, other_solid->maillage.faces,
+            igl::MESH_BOOLEAN_TYPE_INTERSECT, V_intersect, F_intersect);
         return V_intersect.rows() > 0; // on verifie si l'intersection est non vide
     }
 
@@ -191,15 +187,72 @@ bool Component::translate_component(Eigen::Vector3d dep, bool cheke_collision){
     }
 }
 
-bool is_in_Solid(){
+void Component::pprint(int niveau){
     /*
-    il faudra voir si on cheke la bbox  : normalement elle est deja verifier dans le component
-    sdfkjsdlfj sd;fhsdf
+    la classe Solid recoit le chemin vers le fichier, on pourra faire du parcing pour le recupperer ca pourra toujours servir
     */
-}
+    for (int i = 0; i < niveau; ++i){
+        std::cout << "  ";
+    }
+
+    if (this->is_a_solid()){
+        std::cout << "Solide" << std::endl;
+    }
+    else {
+        std::cout << "Composant" << std::endl;
+    }
+    for (auto comp : this->get_l_Component()){
+        comp->pprint(niveau + 1);
+    }
+ }
+
 
 /*
-Component::is_in_component(Eigen::Vector3d point){
+bool Component::is_in_component(Eigen::Vector3d point){
     // Cette fonction pourra etre ameliorer avec un quadtree calculer prealablement 
+    std::cout << "enter collide function" << std::endl;
+    if (this->bounding_box.collide(other_c->bounding_box)) { // la seul et unique raison d'etre des boundings box
+        return false;
+    }
+
+    if (this->is_a_solid() && other_c->is_a_solid()) {
+        std::cout << "enter 1" << std::endl;
+        Solid* this_solid = std::get<Solid*>(this->data);
+        Solid* other_solid = std::get<Solid*>(other_c->data);
+        
+        Eigen::MatrixXd V_intersect;
+        Eigen::MatrixXi F_intersect;
+        // on ne questionnera en aucun cas la complexité d'une telle solution 
+        std::cout<< "intersection" << std::endl;
+        //igl::copyleft::cgal::mesh_boolean(
+        //    this_solid->maillage.sommets, this_solid->maillage.faces,
+        //    other_solid->maillage.sommets, other_solid->maillage.faces,
+        //    igl::MESH_BOOLEAN_TYPE_INTERSECT, V_intersect, F_intersect);
+        std::cout << "fin intersection" << std::endl;
+        return V_intersect.rows() > 0; // on verifie si l'intersection est non vide
+    }
+
+    if (this->is_a_solid()) {
+        for (auto c : other_c->get_l_Component()) {
+            if (this->collide_with(c)) return true;
+        }
+        return false;
+    }
+
+    if (other_c->is_a_solid()) {
+        for (auto c : this->get_l_Component()) {
+            if (c->collide_with(other_c)) return true;
+        }
+        return false;
+    }
+
+    // la recursivité est un choix et j'ai resisiter
+    for (auto c1 : std::get<std::vector<Component*>>(this->data)) {
+        for (auto c2 : std::get<std::vector<Component*>>(other_c->data)) {
+            if (c1->collide_with(c2)) return true;
+        }
+    }
+  
+    return false;
 }
 */
