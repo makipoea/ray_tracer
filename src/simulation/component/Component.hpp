@@ -42,7 +42,7 @@ class bbox{
         //point[4] point_array; // in order : (min_x, min_y, min_z), (max_x, min_y, min_z), (max_x, max_y, min_z), (min_x, max_y, min_z)... la meme avec max_z
         void merge(bbox);
         bool collide(const bbox&) const;
-
+        void translate(Eigen::Vector3d);
         bbox() : min(Eigen::Vector3d::Zero()), max(Eigen::Vector3d::Zero()) {};
         bbox(const Eigen::Vector3d& minVec, const Eigen::Vector3d& maxVec)
         : min(minVec), max(maxVec) {}
@@ -76,7 +76,7 @@ class Component {
     public:
         Component(std::variant<Solid*, std::vector<Component*>> data);
         bool is_a_solid(void);
-        bool add_component(Component* c_add, bool check_collision=true);  
+        bool add_component(Component* c_add, bool check_collision=true, bool merge=false);  
         void compute_bounding_box(); // Peut-être à revoir son utilité
         bool translate_component(Eigen::Vector3d, bool);
         bool is_in_component(Eigen::Vector3d);

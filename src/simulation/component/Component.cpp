@@ -52,6 +52,10 @@ bool bbox::collide(const bbox& b) const {
            (this->max.array() >= b.min.array()).all();
 }
 
+void bbox::translate(Eigen::Vector3d p){
+    min += p;
+    max += p;
+}
  
 Component::Component(std::variant<Solid*, std::vector<Component*>> data) 
     : data(data) 
@@ -142,8 +146,9 @@ void Component::load_viewer(igl::opengl::glfw::Viewer* viewer){
 
 }
 
-bool Component::add_component(Component* c_add, bool check_collision){
+bool Component::add_component(Component* c_add, bool check_collision, bool merge){
     // the output represent the sucess of the adding operation
+    // si merge est vraie : les enfants des deux arbres sont concatener sinon c_add est ajouter comme feuille de this
     if (check_collision && this->collide_with(c_add)) {
         std::cout << "Une detection entre les deux objets a été détécter : l'objet n'as pas été ajouter " << std::endl;
         return false;
@@ -165,9 +170,14 @@ bool Component::add_component(Component* c_add, bool check_collision){
     }
   
     auto& comps_this = this->get_l_Component();
-    auto& comps_c_add = c_add->get_l_Component();
-    comps_this.insert(comps_this.end(), comps_c_add.begin(), comps_c_add.end());
-
+    
+    if (merge){    
+        auto& comps_c_add = c_add->get_l_Component();
+        comps_this.insert(comps_this.end(), comps_c_add.begin(), comps_c_add.end());
+    }
+    else {
+        comps_this.push_back(c_add);
+    }
     return true;
 }
 
@@ -191,6 +201,7 @@ void Component::pprint(int niveau){
     /*
     la classe Solid recoit le chemin vers le fichier, on pourra faire du parcing pour le recupperer ca pourra toujours servir
     */
+    std::cout << niveau << std::endl; 
     for (int i = 0; i < niveau; ++i){
         std::cout << "  ";
     }
@@ -199,11 +210,12 @@ void Component::pprint(int niveau){
         std::cout << "Solide" << std::endl;
     }
     else {
-        std::cout << "Composant" << std::endl;
+        std::cout << "Componant" << std::endl;
+        for (auto comp : this->get_l_Component()){
+            comp->pprint(niveau + 1);
     }
-    for (auto comp : this->get_l_Component()){
-        comp->pprint(niveau + 1);
     }
+   
  }
 
 
