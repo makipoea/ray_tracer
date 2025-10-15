@@ -161,11 +161,14 @@ bool Component::add_component(Component* c_add, bool check_collision, bool merge
         Solid* temporary_solid = this->get_Solid();
 
         this->data = std::vector<Component*>{new Component(temporary_solid)};
+        
         //delete temporary_solid; // ?
     }
     if (c_add->is_a_solid()) {
+        
         Solid* temporary_solid = c_add->get_Solid();
         c_add->data = std::vector<Component*>{new Component(temporary_solid)};
+        merge = true;
         //delete temporary_solid;
     }
   

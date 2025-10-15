@@ -26,14 +26,14 @@ int main() {
     lunette.add_component(&C_lentille_fine);
 
     Component World(&roue);
-
+    //lunette.pprint();
     World.add_component(&lunette);
-
-    lunette.pprint();
-    World.load_viewer(&viewer);
+    World.pprint();
+    //lunette.pprint();
+    //orld.load_viewer(&viewer);
 
     //lunette.load_viewer(&viewer);
-    viewer.launch();
+    //viewer.launch();
     
     /*
     igl::opengl::glfw::Viewer viewer;
