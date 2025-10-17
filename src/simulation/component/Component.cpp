@@ -1,8 +1,11 @@
 #include "Component.hpp"
 #include <eigen3/Eigen/src/Core/Matrix.h>
-#include<iostream>
+#include <iostream>
 #include <igl/copyleft/cgal/mesh_boolean.h>
 #include <igl/opengl/glfw/Viewer.h>
+#include <filesystem>
+
+#include <stdexcept>
 
 void Optical_index::translate_function(Eigen::Vector3d dep) {
     auto old_n = this->n;
@@ -10,11 +13,19 @@ void Optical_index::translate_function(Eigen::Vector3d dep) {
 }
 
 
-Solid::Solid(std::string stl_filename, Optical_index opt_index)
+Solid::Solid(std::string str_fil_path, Optical_index opt_index)
     : n(opt_index)  
     {
-    if (!igl::read_triangle_mesh(stl_filename, maillage.sommets, maillage.faces)) {
-        std::cerr << "Erreur : impossible de charger le fichier " << stl_filename << std::endl;
+    std::filesystem::path stl_path(str_fil_path);
+
+    if (stl_path.extension() != ".stl") {
+            std::cerr << "le solid  : " << str_fil_path<< " a l'extenssion : " << stl_path.extension() << "au lieu de '.stl'"<< std::endl;
+    }
+
+    name = stl_path.stem().string(); // on recupere le nom du fichier (privé de son extenssion)
+
+    if (!igl::read_triangle_mesh(str_fil_path, maillage.sommets, maillage.faces)) {
+        std::cerr << "impossible de charger le fichier " << str_fil_path << std::endl;
     }
     // ajouter le parsing du noom de fichier
     bounding_box.min = maillage.sommets.row(0);
@@ -204,13 +215,12 @@ void Component::pprint(int niveau){
     /*
     la classe Solid recoit le chemin vers le fichier, on pourra faire du parcing pour le recupperer ca pourra toujours servir
     */
-    std::cout << niveau << std::endl; 
     for (int i = 0; i < niveau; ++i){
         std::cout << "  ";
     }
 
     if (this->is_a_solid()){
-        std::cout << "Solide" << std::endl;
+        std::cout << this->get_Solid()->name << std::endl;
     }
     else {
         std::cout << "Componant" << std::endl;

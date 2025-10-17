@@ -68,7 +68,7 @@ class Solid{
         void load_viewer(igl::opengl::glfw::Viewer* viewer);
         bool is_in_Solid(Eigen::Vector3d point);
         //bool collide_with(Solid); 
-        std::string solid_name;
+        std::string name;
     };
 
 

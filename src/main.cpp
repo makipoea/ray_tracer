@@ -13,7 +13,7 @@ int main() {
     Solid lentille_fine = Solid("../resources/lens_fine.stl");
     Solid clip = Solid("../resources/clip.stl");
     Solid roue = Solid("../resources/roue.stl");
-    igl::opengl::glfw::Viewer viewer;
+    //igl::opengl::glfw::Viewer viewer;
 
     //std::cout << "roue min = " << roue.bounding_box.min << "\n  -- \n max = " << roue.bounding_box.max << "\n ----------------------------- \n \n " <<std::endl;
 
