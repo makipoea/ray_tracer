@@ -2,6 +2,7 @@
 #include <eigen3/Eigen/src/Core/Matrix.h>
 #include <iostream>
 #include <igl/copyleft/cgal/mesh_boolean.h>
+#include <igl/copyleft/cgal/points_inside_component.h>
 #include <igl/opengl/glfw/Viewer.h>
 #include <filesystem>
 
@@ -52,6 +53,26 @@ void Solid::load_viewer(igl::opengl::glfw::Viewer* viewer){
     viewer->data().set_mesh(maillage.sommets, maillage.faces);
 }
 
+bool Solid::point_in(Eigen::Vector3d point){
+    /*
+    On est sur a 100% que cgal ou libigl contiennent la fonction adapter mais bon 
+    je sais que c'est horrible mais j'ai la flemme
+    */
+    Eigen::MatrixXd sommet_point = {point};
+    Eigen::MatrixXi face_point = {};
+
+    Eigen::MatrixXd sommet_intersection;
+    Eigen::MatrixXi face_intersection;
+
+    igl::copyleft::cgal::mesh_boolean(
+            maillage.sommets, maillage.faces,
+            sommet_point, face_point,
+            igl::MESH_BOOLEAN_TYPE_INTERSECT, sommet_intersection, face_intersection);
+
+    return sommet_intersection.rows()> 0;
+
+}
+
 void bbox::merge(bbox other_bbox){
     // no comment 
     this->min = this->min.cwiseMin(other_bbox.min);
@@ -68,6 +89,10 @@ void bbox::translate(Eigen::Vector3d p){
     max += p;
 }
  
+bool bbox::point_in(Eigen::Vector3d p){
+    return (min.array() <= p.array()).all() && (max.array() >= p.array()).all();
+}
+
 Component::Component(std::variant<Solid*, std::vector<Component*>> data) 
     : data(data) 
 {
@@ -209,6 +234,7 @@ bool Component::translate_component(Eigen::Vector3d dep, bool cheke_collision){
             comp->translate_component(dep, cheke_collision);
         }
     }
+    return true; // Je sais pas trop ou mettre la verification de la collision
 }
 
 void Component::pprint(int niveau){
@@ -231,53 +257,21 @@ void Component::pprint(int niveau){
    
  }
 
-
-/*
 bool Component::is_in_component(Eigen::Vector3d point){
     // Cette fonction pourra etre ameliorer avec un quadtree calculer prealablement 
-    std::cout << "enter collide function" << std::endl;
-    if (this->bounding_box.collide(other_c->bounding_box)) { // la seul et unique raison d'etre des boundings box
+    if (!bounding_box.point_in(point)) { // la seul et unique raison d'etre des boundings box
         return false;
-    }
-
-    if (this->is_a_solid() && other_c->is_a_solid()) {
-        std::cout << "enter 1" << std::endl;
-        Solid* this_solid = std::get<Solid*>(this->data);
-        Solid* other_solid = std::get<Solid*>(other_c->data);
-        
-        Eigen::MatrixXd V_intersect;
-        Eigen::MatrixXi F_intersect;
-        // on ne questionnera en aucun cas la complexité d'une telle solution 
-        std::cout<< "intersection" << std::endl;
-        //igl::copyleft::cgal::mesh_boolean(
-        //    this_solid->maillage.sommets, this_solid->maillage.faces,
-        //    other_solid->maillage.sommets, other_solid->maillage.faces,
-        //    igl::MESH_BOOLEAN_TYPE_INTERSECT, V_intersect, F_intersect);
-        std::cout << "fin intersection" << std::endl;
-        return V_intersect.rows() > 0; // on verifie si l'intersection est non vide
     }
 
     if (this->is_a_solid()) {
-        for (auto c : other_c->get_l_Component()) {
-            if (this->collide_with(c)) return true;
-        }
-        return false;
+        return this->get_Solid()->point_in(point);
     }
 
-    if (other_c->is_a_solid()) {
-        for (auto c : this->get_l_Component()) {
-            if (c->collide_with(other_c)) return true;
-        }
-        return false;
-    }
-
-    // la recursivité est un choix et j'ai resisiter
     for (auto c1 : std::get<std::vector<Component*>>(this->data)) {
-        for (auto c2 : std::get<std::vector<Component*>>(other_c->data)) {
-            if (c1->collide_with(c2)) return true;
+        if (c1->is_in_component(point)){
+            return true; 
         }
     }
   
     return false;
 }
-*/

@@ -42,6 +42,7 @@ class bbox{
         //point[4] point_array; // in order : (min_x, min_y, min_z), (max_x, min_y, min_z), (max_x, max_y, min_z), (min_x, max_y, min_z)... la meme avec max_z
         void merge(bbox);
         bool collide(const bbox&) const;
+        bool point_in(Eigen::Vector3d point);
         void translate(Eigen::Vector3d);
         bbox() : min(Eigen::Vector3d::Zero()), max(Eigen::Vector3d::Zero()) {};
         bbox(const Eigen::Vector3d& minVec, const Eigen::Vector3d& maxVec)
@@ -66,7 +67,7 @@ class Solid{
         void translate(Eigen::Vector3d);
         Solid(std::string, Optical_index = Optical_index()); 
         void load_viewer(igl::opengl::glfw::Viewer* viewer);
-        bool is_in_Solid(Eigen::Vector3d point);
+        bool point_in(Eigen::Vector3d point);
         //bool collide_with(Solid); 
         std::string name;
     };
